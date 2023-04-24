@@ -77,6 +77,7 @@ app.get("/invoice/:id", function (req, res) {
         date: dayjs().format("YYYY-MM-DD")
     };
     res.send(invoice);
+
     //    let ob;
     //    for (let i = 0; i < invoices.length; i++) {
     //        ob = invoices[i];
