@@ -1,0 +1,85 @@
+<% layout("layout.eta") %>
+
+<div class="d-flex justify-content-between">
+  <h3>La liste des factures</h3>
+  <div>
+    <a href="/edit/0" class="btn btn-success">Nouvelle facture</a>
+  </div>
+  <div>
+    <input type="search" class="form-control" style="background:green" id="search" placeholder="Research" oninput="loadInvoices(this.value)">
+  </div>
+</div>
+
+<table class="table">
+  <thead>
+    <tr>
+      <th scope="col">Numéro ID</th>
+      <th scope="col">Objet</th>
+      <th scope="col">Date</th>
+      <th scope="col" class="text-end">Prix</th>
+      <th scope="col"></th>
+    </tr>
+  </thead>
+
+  <tbody id="invoiceRows">
+  </tbody>
+
+  <tfoot>
+    <tr>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td class="text-end" id="total"></td>
+      <td></td>
+    </tr>
+  </tfoot>
+</table>
+
+<script>
+  function loadInvoices(search) {
+
+    fetch("/invoices?search=" + search)
+      .then(function(response) {
+        console.log(response);
+        return response.json();
+      })
+      .then(function(invoices) {
+        console.log("invoices", invoices);
+        let t0 = document.getElementById("invoiceRows");
+        t0.innerHTML = "";
+        for (i = 0; i < invoices.length; i++) {
+          let ob = invoices[i];
+          let r = t0.insertRow(i);
+          let c0 = r.insertCell(0);
+          let c1 = r.insertCell(1);
+          let c2 = r.insertCell(2);
+          let c3 = r.insertCell(3);
+          let c4 = r.insertCell(4);
+          let c5 = r.insertCell(5);
+          c0.innerHTML = ob.id;
+          c1.innerHTML = ob.object;
+          c2.innerHTML = dayjs(ob.date).format('DD/MM/YYYY');
+          c3.innerHTML = ob.price;
+          c4.innerHTML = `<a href="/edit/${ob.id}" class="btn btn-success">Modifier</a>`;
+          c5.innerHTML = `<button type = "button" class = "btn btn-primary mb-2" style = "background: red"  onclick="destroyInvoice(${ob.id})"> Suprimer </button>`;
+        }
+      })
+
+  }
+
+  function destroyInvoice(id) {
+    if (window.confirm('Souhaitez-vous vraiment supprimer cette facture ?')) {
+      fetch("/invoice/" + id, {
+        method: "DELETE"
+      }).then(function(response) {
+        return response.json();
+      }).then(function(contact) {
+        loadInvoices("");
+      })
+    }
+  }
+
+  addEventListener('load', (event) => {
+    loadInvoices("");
+  });
+</script>
